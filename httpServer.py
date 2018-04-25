@@ -1,7 +1,6 @@
 #Python 3.6
 
 import socket
-from response import Response
 from datetime import datetime
 
 def run_server(host='', port=2222):
@@ -18,23 +17,24 @@ def run_server(host='', port=2222):
             connection, address = s.accept()
             r = ''
             buffer_size = 1024
-            
             while 1:
                 data = connection.recv(1024).decode('utf-8')
                 r += data
                 if len(data) < buffer_size:
                     break
-            
-            # 防止浏览器传空请求过来
-            if len(r.split()) < 2:
-                continue
+                # 防止浏览器传空请求过来
+                if len(r.split()) < 2:
+                    continue
             # 最后取得的r是一个http请求头字符串，对其解析，然后使用sendall返回相应的内容  
-            res = Response(r)
-            res.resolve()
+            request = request_resolve(r)
             # 每次请求时打印时间，请求的方法和路径
-            print(str(datetime.now())[:19], res.method, res.path)
-            connection.sendall(res.response)
+            print(str(datetime.now())[:19], request.method, request.path)
+            res = response(request)
+            connection.sendall(res)
             connection.close()
+
+def request_resolve(request):
+    pass
 
 if __name__ == '__main__':
     run_server()
